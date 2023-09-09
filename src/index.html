@@ -70,11 +70,32 @@
                 <button type="submit">CADASTRAR LIVRO</button>
             </form>
         </details>
+
         
         <details>
             <summary>Lista de Livros</summary>
             <ul id="lista-livros">
+                
+            </ul>
+        </details>
 
+        <details>
+            <summary>Empréstimo de Livro</summary>
+            <form id="emprestimo-livro">
+                <label for="usuario">CPF do Usuário:</label>
+                <input type="text" name="usuario" id="usuario-cpf-emprestimo" required />
+
+                <label for="isbn-livro">ISBN do Livro:</label>
+                <input type="number" name="titulo-livro" id="livro-isbn-emprestimo" required />
+    
+                <button type="submit">FAZER EMPRÉSTIMO DO LIVRO</button>
+            </form>
+        </details>
+
+        <details>
+            <summary>Lista de empréstimos de Livros</summary>
+            <ul id="lista-emprestimos">
+                
             </ul>
         </details>
     </main>
@@ -82,6 +103,6 @@
     <footer>
 
     </footer>
-    <script src="../dist/main.js"></script>
+    <script src="./main.js"></script>
 </body> 
 </html>
