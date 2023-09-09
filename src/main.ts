@@ -145,31 +145,27 @@ class ListaDeLivros {
   }
 
   private renderizarLivro(livro: Livro): void {
-      const li = document.createElement("li");
-      const divDetalhes = document.createElement("div");
-      divDetalhes.setAttribute("data-isbn", livro.isbn.toString());
-      const inputRemover = document.createElement("input");
-      inputRemover.type = "number";
-      inputRemover.placeholder = "Quantidade de livros";
-      const botaoRemover = document.createElement("button");
-      botaoRemover.textContent = "Remover";
-      botaoRemover.addEventListener("click", () => {
-        this.removerLivro(livro, inputRemover.value);
-        inputRemover.value = "";
-      });
+    const li = document.createElement("li");
+    const divDetalhes = document.createElement("div");
+    divDetalhes.setAttribute("data-isbn", livro.isbn.toString());
+    const inputRemover = document.createElement("input");
+    inputRemover.type = "number";
+    inputRemover.placeholder = "Quantidade de livros";
+    const botaoRemover = document.createElement("button");
+    botaoRemover.textContent = "Remover";
+    botaoRemover.addEventListener("click", () => {
+      this.removerLivro(livro, inputRemover.value);
+      inputRemover.value = "";
+    });
 
-      divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
+    divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
 
-  private renderizarLivro(livro: Livro): void {
-      const li = document.createElement("li");
-      const divDetalhes = document.createElement("div");
-      divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
+    li.appendChild(divDetalhes);
+    li.appendChild(inputRemover);
+    li.appendChild(botaoRemover);
+    this.ul.appendChild(li);
+}
 
-      li.appendChild(divDetalhes);
-      li.appendChild(inputRemover);
-      li.appendChild(botaoRemover);
-      this.ul.appendChild(li);
-  }
 
   private salvarNoLocalStorage(): void {
       localStorage.setItem('livros', JSON.stringify(this.livros));
