@@ -114,14 +114,31 @@ class ListaDeLivros {
   }
 
   adicionarLivro(livro: Livro): void {
+    const livroExistente = this.livros.find(l => l.isbn === livro.isbn);
+
+    if (livroExistente) {
+      if (livro.quantidade > 0) {
+        livroExistente.quantidade += livro.quantidade;
+        this.atualizarDetalhesLivro(livroExistente);
+        this.salvarNoLocalStorage();
+      } else {
+        alert('A quantidade do livro deve ser maior que zero.');
+      }
+    } else {
+      if (livro.quantidade <= 0) {
+        alert('A quantidade do livro deve ser maior que zero.');
+        return;
+      }
+
       this.livros.push(livro);
       this.renderizarLivro(livro);
       this.salvarNoLocalStorage();
+    }
   }
 
   private removerLivro(livro: Livro, inputRemover: string): void {
     const quantidadeRemover = parseInt(inputRemover, 10);
-    if (!isNaN(quantidadeRemover)) {
+    if (!isNaN(quantidadeRemover) && quantidadeRemover > 0) {
         if (quantidadeRemover <= livro.quantidade) {
             livro.quantidade -= quantidadeRemover;
             this.atualizarDetalhesLivro(livro);
