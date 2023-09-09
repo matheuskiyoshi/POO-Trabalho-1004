@@ -51,6 +51,7 @@ class ListaDeUsuarios {
       const li = document.createElement("li");
       const divDetalhes = document.createElement("div");
       divDetalhes.textContent = `Nome: ${usuario.nome}, Email: ${usuario.email}, CPF: ${usuario.cpf}, Telefone: ${usuario.telefone}, Endereço: ${usuario.endereco}, CEP: ${usuario.cep}`;
+
       const botaoRemover = document.createElement("button");
       botaoRemover.textContent = "Remover";
       botaoRemover.addEventListener("click", () => {
@@ -157,6 +158,11 @@ class ListaDeLivros {
         inputRemover.value = "";
       });
 
+      divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
+
+  private renderizarLivro(livro: Livro): void {
+      const li = document.createElement("li");
+      const divDetalhes = document.createElement("div");
       divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
 
       li.appendChild(divDetalhes);
