@@ -31,11 +31,34 @@ class ListaDeUsuarios {
       this.salvarNoLocalStorage();
   }
 
+  removerUsuario(cpf: number): void {
+    const indice = this.usuarios.findIndex(usuario => usuario.cpf === cpf);
+    if (indice !== -1) {
+        this.usuarios.splice(indice, 1);
+        this.atualizarLista();
+        this.salvarNoLocalStorage();
+    }
+  }
+  
+  private atualizarLista(): void {
+    while (this.ul.firstChild) {
+        this.ul.removeChild(this.ul.firstChild);
+    }
+    this.usuarios.forEach(usuario => this.renderizarUsuario(usuario));
+  }
+
   private renderizarUsuario(usuario: Usuario): void {
       const li = document.createElement("li");
       const divDetalhes = document.createElement("div");
       divDetalhes.textContent = `Nome: ${usuario.nome}, Email: ${usuario.email}, CPF: ${usuario.cpf}, Telefone: ${usuario.telefone}, Endereço: ${usuario.endereco}, CEP: ${usuario.cep}`;
+
+      const botaoRemover = document.createElement("button");
+      botaoRemover.textContent = "Remover";
+      botaoRemover.addEventListener("click", () => {
+        this.removerUsuario(usuario.cpf);
+    });
       li.appendChild(divDetalhes);
+      li.appendChild(botaoRemover);
       this.ul.appendChild(li);
   }
 
@@ -85,11 +108,66 @@ class ListaDeLivros {
       this.salvarNoLocalStorage();
   }
 
+  private removerLivro(livro: Livro, inputRemover: string): void {
+    const quantidadeRemover = parseInt(inputRemover, 10);
+    if (!isNaN(quantidadeRemover)) {
+        if (quantidadeRemover <= livro.quantidade) {
+            livro.quantidade -= quantidadeRemover;
+            this.atualizarDetalhesLivro(livro);
+            if (quantidadeRemover === livro.quantidade || livro.quantidade === 0) {
+                const index = this.livros.findIndex(item => item.isbn === livro.isbn);
+                if (index !== -1) {
+                    this.livros.splice(index, 1);
+                    const divDetalhes = this.ul.querySelector(`div[data-isbn="${livro.isbn}"]`);
+                    if (divDetalhes) {
+                        const liToRemove = divDetalhes.parentElement;
+                        if (liToRemove) {
+                            this.ul.removeChild(liToRemove);
+                            this.salvarNoLocalStorage();
+                        }
+                    }
+                }
+            }
+            this.salvarNoLocalStorage();
+        } else {
+            alert("A quantidade a ser removida é maior do que a quantidade atual!");
+        }
+    } else {
+        alert("Por favor, insira uma quantidade válida.");
+    }
+  }
+
+  private atualizarDetalhesLivro(livro: Livro): void {
+    const divDetalhes = this.ul.querySelector(`div[data-isbn="${livro.isbn}"]`);
+    if (divDetalhes) {
+        divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
+    }
+  }
+
+  private renderizarLivro(livro: Livro): void {
+      const li = document.createElement("li");
+      const divDetalhes = document.createElement("div");
+      divDetalhes.setAttribute("data-isbn", livro.isbn.toString());
+      const inputRemover = document.createElement("input");
+      inputRemover.type = "number";
+      inputRemover.placeholder = "Quantidade de livros";
+      const botaoRemover = document.createElement("button");
+      botaoRemover.textContent = "Remover";
+      botaoRemover.addEventListener("click", () => {
+        this.removerLivro(livro, inputRemover.value);
+        inputRemover.value = "";
+      });
+
+      divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
+
   private renderizarLivro(livro: Livro): void {
       const li = document.createElement("li");
       const divDetalhes = document.createElement("div");
       divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
+
       li.appendChild(divDetalhes);
+      li.appendChild(inputRemover);
+      li.appendChild(botaoRemover);
       this.ul.appendChild(li);
   }
 
