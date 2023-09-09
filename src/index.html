@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./assets/logo-biblioteca.png" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+
+    <title>Biblioteca</title>
+</head>
+<body>
+    <header>
+        <h1>Biblioteca</h1>
+    </header>
+    
+    <main>
+
+        <details>
+            <summary>Cadastrar Usuário</summary>
+            <form id="add-user">
+                <label for="name-user">Nome do Usuário:</label>
+                <input type="text" name="name-user" id="name-user" required />
+
+                <label for="cpf-user">Informe o CPF do Usuário:</label>
+                <input type="number" name="cpf-user" id="cpf-user" required />
+
+                <label for="telefone-user">Informe o Telefone do Usuário:</label>
+                <input type="number" name="telefone-user" id="telefone-user" required />    
+
+                <label for="endereco-user">Informe o endereço:</label>
+                <input type="text" name="endereco-user" id="endereco-user" required />
+    
+                <label for="cep-user">Informe o CEP:</label>
+                <input type="number" name="cep-user" id="cep-user" required />
+                
+                <button type="submit">CADASTRAR USUÁRIO</button>
+            </form>
+        </details>
+
+        <details>
+            <summary>Cadastrar Livro</summary>
+            <form id="add-livro">
+                <label for="titulo-livro">Título do Livro:</label>
+                <input type="text" name="titulo-livro" id="titulo-livro" required />
+
+                <label for="autor-livro">Autor do Livro:</label>
+                <input type="text" name="autor-livro" id="autor-livro" required />
+    
+                <label for="ano-livro">Ano de Publicação:</label>
+                <input type="number" name="ano-livro" id="ano-livro" required />
+    
+                <label for="genero-livro">Gênero:</label>
+                <input type="text" name="genero-livro" id="genero-livro" required />
+                
+                <label for="isbn-livro">ISBN:</label>
+                <input type="number" name="isbn-livro" id="isbn-livro" required />
+                
+                <label for="quantidade-livro">Quantidade:</label>
+                <input type="number" name="quantidade-livro" id="quantidade-livro" required />
+
+                <button type="submit">CADASTRAR LIVRO</button>
+            </form>
+        </details>
+        
+        <details>
+            <summary>Lista de Livros</summary>
+            <ul id="lista-livros">
+
+            </ul>
+        </details>
+    </main>
+
+    <footer>
+
+    </footer>
+    <script src="../dist/main.js"></script>
+</body> 
+</html>
