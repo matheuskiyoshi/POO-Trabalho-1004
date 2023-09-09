@@ -17,24 +17,33 @@
 
         <details>
             <summary>Cadastrar Usuário</summary>
-            <form id="add-user">
-                <label for="name-user">Nome do Usuário:</label>
-                <input type="text" name="name-user" id="name-user" required />
+            <form id="add-usuario">
+                <label for="nome-usuario">Nome do Usuário:</label>
+                <input type="text" name="nome-usuario" id="nome-usuario" required />
 
-                <label for="cpf-user">Informe o CPF do Usuário:</label>
-                <input type="number" name="cpf-user" id="cpf-user" required />
+                <label for="email-usuario">E-mail do Usuário:</label>
+                <input type="email" name="email-usuario" id="email-usuario" required />
 
-                <label for="telefone-user">Informe o Telefone do Usuário:</label>
-                <input type="number" name="telefone-user" id="telefone-user" required />    
+                <label for="cpf-usuario">Informe o CPF do Usuário:</label>
+                <input type="number" name="cpf-usuario" id="cpf-usuario" required />
 
-                <label for="endereco-user">Informe o endereço:</label>
-                <input type="text" name="endereco-user" id="endereco-user" required />
+                <label for="telefone-usuario">Informe o Telefone do Usuário:</label>
+                <input type="number" name="telefone-usuario" id="telefone-usuario" required />    
+
+                <label for="endereco-usuario">Informe o endereço:</label>
+                <input type="text" name="endereco-usuario" id="endereco-usuario" required />
     
-                <label for="cep-user">Informe o CEP:</label>
-                <input type="number" name="cep-user" id="cep-user" required />
+                <label for="cep-usuario">Informe o CEP:</label>
+                <input type="number" name="cep-usuario" id="cep-usuario" required />
                 
                 <button type="submit">CADASTRAR USUÁRIO</button>
             </form>
+        </details>
+
+        <details>
+            <summary>Lista de Usuários</summary>
+            <ul id="lista-usuarios">
+            </ul>
         </details>
 
         <details>
