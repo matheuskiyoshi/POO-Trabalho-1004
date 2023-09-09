@@ -26,9 +26,20 @@ class ListaDeUsuarios {
   }
 
   adicionarUsuario(usuario: Usuario): void {
+    const usuarioExistente = this.usuarios.find(u => u.cpf === usuario.cpf);
+
+    if (usuarioExistente) {
+      usuarioExistente.nome = usuario.nome;
+      usuarioExistente.email = usuario.email;
+      usuarioExistente.telefone = usuario.telefone;
+      usuarioExistente.endereco = usuario.endereco;
+      usuarioExistente.cep = usuario.cep;
+    } else {
       this.usuarios.push(usuario);
-      this.renderizarUsuario(usuario);
-      this.salvarNoLocalStorage();
+    }
+
+    this.atualizarLista();
+    this.salvarNoLocalStorage();
   }
 
   removerUsuario(cpf: number): void {
