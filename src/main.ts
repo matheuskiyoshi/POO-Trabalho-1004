@@ -31,11 +31,33 @@ class ListaDeUsuarios {
       this.salvarNoLocalStorage();
   }
 
+  removerUsuario(cpf: number): void {
+    const indice = this.usuarios.findIndex(usuario => usuario.cpf === cpf);
+    if (indice !== -1) {
+        this.usuarios.splice(indice, 1);
+        this.atualizarLista();
+        this.salvarNoLocalStorage();
+    }
+  }
+  
+  private atualizarLista(): void {
+    while (this.ul.firstChild) {
+        this.ul.removeChild(this.ul.firstChild);
+    }
+    this.usuarios.forEach(usuario => this.renderizarUsuario(usuario));
+  }
+
   private renderizarUsuario(usuario: Usuario): void {
       const li = document.createElement("li");
       const divDetalhes = document.createElement("div");
       divDetalhes.textContent = `Nome: ${usuario.nome}, Email: ${usuario.email}, CPF: ${usuario.cpf}, Telefone: ${usuario.telefone}, Endereço: ${usuario.endereco}, CEP: ${usuario.cep}`;
+      const botaoRemover = document.createElement("button");
+      botaoRemover.textContent = "Remover";
+      botaoRemover.addEventListener("click", () => {
+        this.removerUsuario(usuario.cpf);
+    });
       li.appendChild(divDetalhes);
+      li.appendChild(botaoRemover);
       this.ul.appendChild(li);
   }
 
