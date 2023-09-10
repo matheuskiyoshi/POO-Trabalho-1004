@@ -31,11 +31,45 @@ class ListaDeUsuarios {
     this.salvarNoLocalStorage();
   }
 
+  removerUsuario(cpf: number): void {
+    const indice = this.usuarios.findIndex(usuario => usuario.cpf === cpf);
+    if (indice !== -1) {
+      this.usuarios.splice(indice, 1);
+      this.atualizarLista();
+      this.salvarNoLocalStorage();
+    }
+  }
+
+  private atualizarLista(): void {
+    while (this.ul.firstChild) {
+      this.ul.removeChild(this.ul.firstChild);
+    }
+    this.usuarios.forEach(usuario => this.renderizarUsuario(usuario));
+  }
+
+  verificarUsuarioPorCPF(cpf: number): Usuario {
+    const usuarioEncontrado = this.usuarios.find((usuario) => usuario.cpf === cpf);
+
+    if (usuarioEncontrado) {
+      return usuarioEncontrado;
+    } else {
+      alert("Usuário não cadastrado no sistema");
+      throw new Error("Usuário não cadastrado no sistema");
+    }
+  }
+
   private renderizarUsuario(usuario: Usuario): void {
     const li = document.createElement("li");
     const divDetalhes = document.createElement("div");
     divDetalhes.textContent = `Nome: ${usuario.nome}, Email: ${usuario.email}, CPF: ${usuario.cpf}, Telefone: ${usuario.telefone}, Endereço: ${usuario.endereco}, CEP: ${usuario.cep}`;
+
+    const botaoRemover = document.createElement("button");
+    botaoRemover.textContent = "Remover";
+    botaoRemover.addEventListener("click", () => {
+      this.removerUsuario(usuario.cpf);
+    });
     li.appendChild(divDetalhes);
+    li.appendChild(botaoRemover);
     this.ul.appendChild(li);
   }
 
@@ -89,13 +123,80 @@ class ListaDeLivros {
     this.salvarNoLocalStorage();
   }
 
+  removerLivro(livro: Livro, inputRemover: string): void {
+    const quantidadeRemover = parseInt(inputRemover, 10);
+    if (!isNaN(quantidadeRemover)) {
+      if (quantidadeRemover <= livro.quantidade) {
+        livro.quantidade -= quantidadeRemover;
+        this.atualizarDetalhesLivro(livro);
+        if (quantidadeRemover === livro.quantidade || livro.quantidade === 0) {
+          const index = this.livros.findIndex(item => item.isbn === livro.isbn);
+          if (index !== -1) {
+            this.livros.splice(index, 1);
+            const divDetalhes = this.ul.querySelector(`div[data-isbn="${livro.isbn}"]`);
+            if (divDetalhes) {
+              const liToRemove = divDetalhes.parentElement;
+              if (liToRemove) {
+                this.ul.removeChild(liToRemove);
+                this.salvarNoLocalStorage();
+              }
+            }
+          }
+        }
+        this.salvarNoLocalStorage();
+      } else {
+        alert("A quantidade a ser removida é maior do que a quantidade atual!");
+      }
+    } else {
+      alert("Por favor, insira uma quantidade válida.");
+    }
+  }
+
+  atualizarDetalhesLivro(livro: Livro): void {
+    const divDetalhes = this.ul.querySelector(`div[data-isbn="${livro.isbn}"]`);
+    if (divDetalhes) {
+      divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
+    }
+  }
+
+  verificarDisponibilidadeLivro(isbn: number): Livro {
+    const livroEncontrado = this.livros.find((livro) => livro.isbn === isbn);
+    if (!livroEncontrado) {
+      alert("Livro não cadastrado no sistema");
+      throw new Error("Livro não cadastrado no sistema");
+    }
+    if (livroEncontrado.quantidade == 0) {
+      alert("Livro não disponível para empréstimo");
+      throw new Error("Livro não disponível para empréstimo");
+    }
+    livroEncontrado.quantidade--;
+    this.atualizarDetalhesLivro(livroEncontrado)
+    
+    return livroEncontrado;
+  }
+
   private renderizarLivro(livro: Livro): void {
     const li = document.createElement("li");
     const divDetalhes = document.createElement("div");
+    divDetalhes.setAttribute("data-isbn", livro.isbn.toString());
+    const inputRemover = document.createElement("input");
+    inputRemover.type = "number";
+    inputRemover.placeholder = "Quantidade de livros";
+    const botaoRemover = document.createElement("button");
+    botaoRemover.textContent = "Remover";
+    botaoRemover.addEventListener("click", () => {
+      this.removerLivro(livro, inputRemover.value);
+      inputRemover.value = "";
+    });
+
     divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
+
     li.appendChild(divDetalhes);
+    li.appendChild(inputRemover);
+    li.appendChild(botaoRemover);
     this.ul.appendChild(li);
   }
+
 
   private salvarNoLocalStorage(): void {
     localStorage.setItem('livros', JSON.stringify(this.livros));
@@ -174,16 +275,19 @@ form.addEventListener("submit", (event) => {
   quantidade.value = "";
 });
 
-
 class Emprestimo {
   usuario: Usuario;
   livro: Livro;
   dataEmprestimo: Date;
 
-  constructor(usuario: Usuario, livro: Livro, data: Date) {
+  constructor(usuario: Usuario, livro: Livro) {
     this.usuario = usuario;
     this.livro = livro;
-    this.dataEmprestimo = data;
+    this.dataEmprestimo = new Date();
+  }
+  getDataEmprestimoFormatada(): number {
+    const dt = new Date(this.dataEmprestimo)
+    return dt.getDate();
   }
 }
 class ListaDeEmprestimos {
@@ -192,54 +296,72 @@ class ListaDeEmprestimos {
 
   constructor(ulId: string) {
     this.ul = document.getElementById(ulId) as HTMLUListElement;
+    this.carregarDoLocalStorage();
   }
-
-  //método verifica se usuario existe
-  //if existe: prosseguir para verificar livro
-  //else: erro de usuário não cadastrado
-  verificaUsuario(emprestimo: Emprestimo): void {
-    let index = this.emprestimos.findIndex((value) => value.usuario == emprestimo.usuario)
-    if (index == -1) {
-      console.error("Usuário não cadastrado no sistema")
-    }
-  }
-
-  //método verificar disponibilidade de livro
-  //caso não exista o livro:
-  //livro não cadastrado
-  //caso indisponível:
-  //mostrar erro com a mensagem de livro indisponível para empréstimo
-  //caso disponível:
-  //executar o emprestimo e reduzir quantidade de livro na lista de livro
-  verificaLivro(emprestimo: Emprestimo): void {
-    let index = this.emprestimos.findIndex((value) => value.livro == emprestimo.livro)
-    let quantidadeLivro =  // Como acessar a quantidade de livros no array de livros? :(
-    if (index == -1) {
-      console.error("Livro não cadastrado no sistema")
-    } else if (quantidadeLivro < 1) {
-      console.error("Livro não disponível para empréstimo")
-    } else {
-      quantidadeLivro--
-    }
-  }
-
-  //Interrompe a impressão na lista de emprestimos?
-
 
   adicionarEmprestimo(emprestimo: Emprestimo): void {
     this.emprestimos.push(emprestimo);
     this.renderizarEmprestimo(emprestimo);
+    this.salvarNoLocalStorage();
+  }
+
+  verificarEmprestimoPorUsuario(cpf: number): number {
+    const arrEmprestimoDoUsuario = this.emprestimos.filter((emprestimo) => emprestimo.usuario.cpf == cpf)
+    return arrEmprestimoDoUsuario.length;
+  }
+
+  limiteDeEmprestimoUsuario(cpf: number): void {
+    const emprestimos = this.verificarEmprestimoPorUsuario(cpf)
+    if (emprestimos > 2) {
+      alert("Limite de empréstimo por usuário atingido")
+      throw new Error("Limite de empréstimo por usuário atingido")
+    }
   }
 
   private renderizarEmprestimo(emprestimo: Emprestimo): void {
     const li = document.createElement("li");
     const divDetalhes = document.createElement("div");
-
-    divDetalhes.textContent = `Usuário: ${emprestimo.usuario}, Título: ${emprestimo.titulo}, Autor: ${emprestimo.autor}, Ano: ${emprestimo.ano}, Gênero: ${emprestimo.genero}, ISBN: ${emprestimo.isbn}.`;
-    //alterar para dados de emprestimo
-
+    divDetalhes.textContent = `Usuário: ${emprestimo.usuario.nome}, CPF: ${emprestimo.usuario.cpf}, Título: ${emprestimo.livro.titulo}, ISBN: ${emprestimo.livro.isbn}, Data do empréstimo:  `;
+    //refatorar a data de empréstimo
+    const botaoDevolver = document.createElement("button");
+    botaoDevolver.textContent = "Devolução";
+    botaoDevolver.addEventListener("click", () => {
+      this.removerEmprestimo(emprestimo.usuario.cpf);
+      emprestimo.livro.quantidade++
+      listaLivros.atualizarDetalhesLivro(emprestimo.livro)
+    });
     li.appendChild(divDetalhes);
+    li.appendChild(botaoDevolver);
     this.ul.appendChild(li);
+  }
+
+  removerEmprestimo(cpf: number): void {
+    const indice = this.emprestimos.findIndex(emprestimo => emprestimo.usuario.cpf === cpf);
+    if (indice !== -1) {
+      this.emprestimos.splice(indice, 1);
+      this.atualizarLista();
+      this.salvarNoLocalStorage();
+    }
+  }
+
+  private atualizarLista(): void {
+    while (this.ul.firstChild) {
+      this.ul.removeChild(this.ul.firstChild);
+    }
+    this.emprestimos.forEach(emprestimo => this.renderizarEmprestimo(emprestimo));
+  }
+
+
+  private salvarNoLocalStorage(): void {
+    localStorage.setItem('emprestimos', JSON.stringify(this.emprestimos));
+  }
+
+  private carregarDoLocalStorage(): void {
+    const emprestimosGuardados = localStorage.getItem('emprestimos');
+    if (emprestimosGuardados) {
+      this.emprestimos = JSON.parse(emprestimosGuardados);
+      this.emprestimos.forEach(emprestimo => this.renderizarEmprestimo(emprestimo));
+    }
   }
 }
 
@@ -252,14 +374,19 @@ formEmprestimo.addEventListener("submit", (event) => {
   const usuarioCPF = document.getElementById("usuario-cpf-emprestimo") as HTMLInputElement;
   const livroISBN = document.getElementById("livro-isbn-emprestimo") as HTMLInputElement;
 
+  const cpf = parseInt(usuarioCPF.value);
+  const isbn = parseInt(livroISBN.value);
+
+  const usuarioEmprestimo = listaUsuarios.verificarUsuarioPorCPF(cpf);
+  const livroEmprestimo = listaLivros.verificarDisponibilidadeLivro(isbn);
+
   const novoEmprestimo = new Emprestimo(
-    usuarioCPF.value,
-    parseInt(livroISBN.value),
-    new Date()
+    usuarioEmprestimo,
+    livroEmprestimo
   );
 
-  listaEmprestimos.verificaUsuario(novoEmprestimo);
-  listaEmprestimos.verificaLivro(novoEmprestimo);
+  listaEmprestimos.limiteDeEmprestimoUsuario(cpf);
+
   listaEmprestimos.adicionarEmprestimo(novoEmprestimo);
 
   usuarioCPF.value = "";
