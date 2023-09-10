@@ -58,6 +58,17 @@ class ListaDeUsuarios {
     this.usuarios.forEach(usuario => this.renderizarUsuario(usuario));
   }
 
+  verificarUsuarioPorCPF(cpf: number): Usuario {
+    const usuarioEncontrado = this.usuarios.find((usuario) => usuario.cpf === cpf);
+
+    if (usuarioEncontrado) {
+      return usuarioEncontrado;
+    } else {
+      alert("Usuário não cadastrado no sistema");
+      throw new Error("Usuário não cadastrado no sistema");
+    }
+  }
+
   private renderizarUsuario(usuario: Usuario): void {
       const li = document.createElement("li");
       const divDetalhes = document.createElement("div");
@@ -113,6 +124,10 @@ class ListaDeLivros {
       this.carregarDoLocalStorage();
   }
 
+  getLivros() {
+    return this.livros;
+  }
+
   adicionarLivro(livro: Livro): void {
     const livroExistente = this.livros.find(l => l.isbn === livro.isbn);
 
@@ -136,7 +151,7 @@ class ListaDeLivros {
     }
   }
 
-  private removerLivro(livro: Livro, inputRemover: string): void {
+  removerLivro(livro: Livro, inputRemover: string): void {
     const quantidadeRemover = parseInt(inputRemover, 10);
     if (!isNaN(quantidadeRemover) && quantidadeRemover > 0) {
         if (quantidadeRemover <= livro.quantidade) {
@@ -165,11 +180,27 @@ class ListaDeLivros {
     }
   }
 
-  private atualizarDetalhesLivro(livro: Livro): void {
+  atualizarDetalhesLivro(livro: Livro): void {
     const divDetalhes = this.ul.querySelector(`div[data-isbn="${livro.isbn}"]`);
     if (divDetalhes) {
         divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
     }
+  }
+
+  verificarDisponibilidadeLivro(isbn: number): Livro {
+    const livroEncontrado = this.livros.find((livro) => livro.isbn === isbn);
+    if (!livroEncontrado) {
+      alert("Livro não cadastrado no sistema");
+      throw new Error("Livro não cadastrado no sistema");
+    }
+    if (livroEncontrado.quantidade == 0) {
+      alert("Livro não disponível para empréstimo");
+      throw new Error("Livro não disponível para empréstimo");
+    }
+    livroEncontrado.quantidade--;
+    this.atualizarDetalhesLivro(livroEncontrado)
+    
+    return livroEncontrado;
   }
 
   private renderizarLivro(livro: Livro): void {
@@ -192,8 +223,7 @@ class ListaDeLivros {
     li.appendChild(inputRemover);
     li.appendChild(botaoRemover);
     this.ul.appendChild(li);
-}
-
+  }
 
   private salvarNoLocalStorage(): void {
       localStorage.setItem('livros', JSON.stringify(this.livros));
@@ -270,4 +300,122 @@ form.addEventListener("submit", (event) => {
   genero.value = "";
   isbn.value = "";
   quantidade.value = "";
+});
+
+class Emprestimo {
+  usuario: Usuario;
+  livro: Livro;
+  dataEmprestimo: Date;
+
+  constructor(usuario: Usuario, livro: Livro) {
+    this.usuario = usuario;
+    this.livro = livro;
+    this.dataEmprestimo = new Date();
+  }
+  getDataEmprestimoFormatada(): number {
+    const dt = new Date(this.dataEmprestimo)
+    return dt.getDate();
+  }
+}
+class ListaDeEmprestimos {
+  private emprestimos: Emprestimo[] = [];
+  private ul: HTMLUListElement;
+
+  constructor(ulId: string) {
+    this.ul = document.getElementById(ulId) as HTMLUListElement;
+    this.carregarDoLocalStorage();
+  }
+
+  adicionarEmprestimo(emprestimo: Emprestimo): void {
+    this.emprestimos.push(emprestimo);
+    this.renderizarEmprestimo(emprestimo);
+    this.salvarNoLocalStorage();
+  }
+
+  verificarEmprestimoPorUsuario(cpf: number): number {
+    const arrEmprestimoDoUsuario = this.emprestimos.filter((emprestimo) => emprestimo.usuario.cpf == cpf)
+    return arrEmprestimoDoUsuario.length;
+  }
+
+  limiteDeEmprestimoUsuario(cpf: number): void {
+    const emprestimos = this.verificarEmprestimoPorUsuario(cpf)
+    if (emprestimos > 2) {
+      alert("Limite de empréstimo por usuário atingido")
+      throw new Error("Limite de empréstimo por usuário atingido")
+    }
+  }
+
+  private renderizarEmprestimo(emprestimo: Emprestimo): void {
+    const li = document.createElement("li");
+    const divDetalhes = document.createElement("div");
+    divDetalhes.textContent = `Usuário: ${emprestimo.usuario.nome}, CPF: ${emprestimo.usuario.cpf}, Título: ${emprestimo.livro.titulo}, ISBN: ${emprestimo.livro.isbn}, Data do empréstimo:  `;
+    //refatorar a data de empréstimo
+    const botaoDevolver = document.createElement("button");
+    botaoDevolver.textContent = "Devolução";
+    botaoDevolver.addEventListener("click", () => {
+      this.removerEmprestimo(emprestimo.usuario.cpf);
+      emprestimo.livro.quantidade++
+      listaLivros.atualizarDetalhesLivro(emprestimo.livro)
+    });
+    li.appendChild(divDetalhes);
+    li.appendChild(botaoDevolver);
+    this.ul.appendChild(li);
+  }
+
+  removerEmprestimo(cpf: number): void {
+    const indice = this.emprestimos.findIndex(emprestimo => emprestimo.usuario.cpf === cpf);
+    if (indice !== -1) {
+      this.emprestimos.splice(indice, 1);
+      this.atualizarLista();
+      this.salvarNoLocalStorage();
+    }
+  }
+
+  private atualizarLista(): void {
+    while (this.ul.firstChild) {
+      this.ul.removeChild(this.ul.firstChild);
+    }
+    this.emprestimos.forEach(emprestimo => this.renderizarEmprestimo(emprestimo));
+  }
+
+
+  private salvarNoLocalStorage(): void {
+    localStorage.setItem('emprestimos', JSON.stringify(this.emprestimos));
+  }
+
+  private carregarDoLocalStorage(): void {
+    const emprestimosGuardados = localStorage.getItem('emprestimos');
+    if (emprestimosGuardados) {
+      this.emprestimos = JSON.parse(emprestimosGuardados);
+      this.emprestimos.forEach(emprestimo => this.renderizarEmprestimo(emprestimo));
+    }
+  }
+}
+
+const listaEmprestimos = new ListaDeEmprestimos("lista-emprestimos");
+
+const formEmprestimo = document.getElementById("emprestimo-livro") as HTMLFormElement;
+formEmprestimo.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const usuarioCPF = document.getElementById("usuario-cpf-emprestimo") as HTMLInputElement;
+  const livroISBN = document.getElementById("livro-isbn-emprestimo") as HTMLInputElement;
+
+  const cpf = parseInt(usuarioCPF.value);
+  const isbn = parseInt(livroISBN.value);
+
+  const usuarioEmprestimo = listaUsuarios.verificarUsuarioPorCPF(cpf);
+  const livroEmprestimo = listaLivros.verificarDisponibilidadeLivro(isbn);
+
+  const novoEmprestimo = new Emprestimo(
+    usuarioEmprestimo,
+    livroEmprestimo
+  );
+
+  listaEmprestimos.limiteDeEmprestimoUsuario(cpf);
+
+  listaEmprestimos.adicionarEmprestimo(novoEmprestimo);
+
+  usuarioCPF.value = "";
+  livroISBN.value = "";
 });
