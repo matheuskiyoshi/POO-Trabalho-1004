@@ -37,7 +37,7 @@ class ListaDeUsuarios {
     } else {
       this.usuarios.push(usuario);
     }
-
+    this.renderizarUsuario(usuario);
     this.atualizarLista();
     this.salvarNoLocalStorage();
   }
