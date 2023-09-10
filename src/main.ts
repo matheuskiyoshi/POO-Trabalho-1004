@@ -7,12 +7,12 @@ class Usuario {
   cep: number;
 
   constructor(nome: string, email: string, cpf: number, telefone: number, endereco: string, cep: number) {
-      this.nome = nome;
-      this.email = email;
-      this.cpf = cpf;
-      this.telefone = telefone;
-      this.endereco = endereco;
-      this.cep = cep;
+    this.nome = nome;
+    this.email = email;
+    this.cpf = cpf;
+    this.telefone = telefone;
+    this.endereco = endereco;
+    this.cep = cep;
   }
 }
 
@@ -21,57 +21,68 @@ class ListaDeUsuarios {
   private ul: HTMLUListElement;
 
   constructor(ulId: string) {
-      this.ul = document.getElementById(ulId) as HTMLUListElement;
-      this.carregarDoLocalStorage();
+    this.ul = document.getElementById(ulId) as HTMLUListElement;
+    this.carregarDoLocalStorage();
   }
 
   adicionarUsuario(usuario: Usuario): void {
-      this.usuarios.push(usuario);
-      this.renderizarUsuario(usuario);
-      this.salvarNoLocalStorage();
+    this.usuarios.push(usuario);
+    this.renderizarUsuario(usuario);
+    this.salvarNoLocalStorage();
   }
 
   removerUsuario(cpf: number): void {
     const indice = this.usuarios.findIndex(usuario => usuario.cpf === cpf);
     if (indice !== -1) {
-        this.usuarios.splice(indice, 1);
-        this.atualizarLista();
-        this.salvarNoLocalStorage();
+      this.usuarios.splice(indice, 1);
+      this.atualizarLista();
+      this.salvarNoLocalStorage();
     }
   }
-  
+
   private atualizarLista(): void {
     while (this.ul.firstChild) {
-        this.ul.removeChild(this.ul.firstChild);
+      this.ul.removeChild(this.ul.firstChild);
     }
     this.usuarios.forEach(usuario => this.renderizarUsuario(usuario));
   }
 
-  private renderizarUsuario(usuario: Usuario): void {
-      const li = document.createElement("li");
-      const divDetalhes = document.createElement("div");
-      divDetalhes.textContent = `Nome: ${usuario.nome}, Email: ${usuario.email}, CPF: ${usuario.cpf}, Telefone: ${usuario.telefone}, Endereço: ${usuario.endereco}, CEP: ${usuario.cep}`;
+  verificarUsuarioPorCPF(cpf: number): Usuario {
+    const usuarioEncontrado = this.usuarios.find((usuario) => usuario.cpf === cpf);
 
-      const botaoRemover = document.createElement("button");
-      botaoRemover.textContent = "Remover";
-      botaoRemover.addEventListener("click", () => {
-        this.removerUsuario(usuario.cpf);
+    if (usuarioEncontrado) {
+      return usuarioEncontrado;
+    } else {
+      alert("Usuário não cadastrado no sistema");
+      throw new Error("Usuário não cadastrado no sistema");
+    }
+  }
+
+  private renderizarUsuario(usuario: Usuario): void {
+    const li = document.createElement("li");
+    const divDetalhes = document.createElement("div");
+    divDetalhes.textContent = `Nome: ${usuario.nome}, Email: ${usuario.email}, CPF: ${usuario.cpf}, Telefone: ${usuario.telefone}, Endereço: ${usuario.endereco}, CEP: ${usuario.cep}`;
+
+    const botaoRemover = document.createElement("button");
+    botaoRemover.textContent = "Remover";
+    botaoRemover.addEventListener("click", () => {
+      this.removerUsuario(usuario.cpf);
     });
-      li.appendChild(divDetalhes);
-      li.appendChild(botaoRemover);
-      this.ul.appendChild(li);
+    li.appendChild(divDetalhes);
+    li.appendChild(botaoRemover);
+    this.ul.appendChild(li);
   }
 
   private salvarNoLocalStorage(): void {
-      localStorage.setItem('usuarios', JSON.stringify(this.usuarios));
+    localStorage.setItem('usuarios', JSON.stringify(this.usuarios));
   }
 
   private carregarDoLocalStorage(): void {
-      const usuariosGuardados = localStorage.getItem('usuarios');
-      if (usuariosGuardados) {
-          this.usuarios = JSON.parse(usuariosGuardados);
-          this.usuarios.forEach(usuario => this.renderizarUsuario(usuario));
-      }
+    const usuariosGuardados = localStorage.getItem('usuarios');
+    if (usuariosGuardados) {
+      this.usuarios = JSON.parse(usuariosGuardados);
+      this.usuarios.forEach(usuario => this.renderizarUsuario(usuario));
+    }
   }
 }
 
@@ -84,12 +95,12 @@ class Livro {
   isbn: number;
 
   constructor(titulo: string, autor: string, ano: number, genero: string, isbn: number, quantidade: number) {
-      this.titulo = titulo;
-      this.autor = autor;
-      this.ano = ano;
-      this.genero = genero;
-      this.isbn = isbn;
-      this.quantidade = quantidade;
+    this.titulo = titulo;
+    this.autor = autor;
+    this.ano = ano;
+    this.genero = genero;
+    this.isbn = isbn;
+    this.quantidade = quantidade;
   }
 }
 
@@ -98,50 +109,70 @@ class ListaDeLivros {
   private ul: HTMLUListElement;
 
   constructor(ulId: string) {
-      this.ul = document.getElementById(ulId) as HTMLUListElement;
-      this.carregarDoLocalStorage();
+    this.ul = document.getElementById(ulId) as HTMLUListElement;
+    this.carregarDoLocalStorage();
+  }
+
+  getLivros() {
+    return this.livros;
   }
 
   adicionarLivro(livro: Livro): void {
-      this.livros.push(livro);
-      this.renderizarLivro(livro);
-      this.salvarNoLocalStorage();
+    this.livros.push(livro);
+    this.renderizarLivro(livro);
+    this.salvarNoLocalStorage();
   }
 
-  private removerLivro(livro: Livro, inputRemover: string): void {
+  removerLivro(livro: Livro, inputRemover: string): void {
     const quantidadeRemover = parseInt(inputRemover, 10);
     if (!isNaN(quantidadeRemover)) {
-        if (quantidadeRemover <= livro.quantidade) {
-            livro.quantidade -= quantidadeRemover;
-            this.atualizarDetalhesLivro(livro);
-            if (quantidadeRemover === livro.quantidade || livro.quantidade === 0) {
-                const index = this.livros.findIndex(item => item.isbn === livro.isbn);
-                if (index !== -1) {
-                    this.livros.splice(index, 1);
-                    const divDetalhes = this.ul.querySelector(`div[data-isbn="${livro.isbn}"]`);
-                    if (divDetalhes) {
-                        const liToRemove = divDetalhes.parentElement;
-                        if (liToRemove) {
-                            this.ul.removeChild(liToRemove);
-                            this.salvarNoLocalStorage();
-                        }
-                    }
-                }
+      if (quantidadeRemover <= livro.quantidade) {
+        livro.quantidade -= quantidadeRemover;
+        this.atualizarDetalhesLivro(livro);
+        if (quantidadeRemover === livro.quantidade || livro.quantidade === 0) {
+          const index = this.livros.findIndex(item => item.isbn === livro.isbn);
+          if (index !== -1) {
+            this.livros.splice(index, 1);
+            const divDetalhes = this.ul.querySelector(`div[data-isbn="${livro.isbn}"]`);
+            if (divDetalhes) {
+              const liToRemove = divDetalhes.parentElement;
+              if (liToRemove) {
+                this.ul.removeChild(liToRemove);
+                this.salvarNoLocalStorage();
+              }
             }
-            this.salvarNoLocalStorage();
-        } else {
-            alert("A quantidade a ser removida é maior do que a quantidade atual!");
+          }
         }
+        this.salvarNoLocalStorage();
+      } else {
+        alert("A quantidade a ser removida é maior do que a quantidade atual!");
+      }
     } else {
-        alert("Por favor, insira uma quantidade válida.");
+      alert("Por favor, insira uma quantidade válida.");
     }
   }
 
-  private atualizarDetalhesLivro(livro: Livro): void {
+  atualizarDetalhesLivro(livro: Livro): void {
     const divDetalhes = this.ul.querySelector(`div[data-isbn="${livro.isbn}"]`);
     if (divDetalhes) {
-        divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
+      divDetalhes.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Ano: ${livro.ano}, Gênero: ${livro.genero}, ISBN: ${livro.isbn}, Quantidade: ${livro.quantidade}`;
     }
+  }
+
+  verificarDisponibilidadeLivro(isbn: number): Livro {
+    const livroEncontrado = this.livros.find((livro) => livro.isbn === isbn);
+    if (!livroEncontrado) {
+      alert("Livro não cadastrado no sistema");
+      throw new Error("Livro não cadastrado no sistema");
+    }
+    if (livroEncontrado.quantidade == 0) {
+      alert("Livro não disponível para empréstimo");
+      throw new Error("Livro não disponível para empréstimo");
+    }
+    livroEncontrado.quantidade--;
+    this.atualizarDetalhesLivro(livroEncontrado)
+    
+    return livroEncontrado;
   }
 
   private renderizarLivro(livro: Livro): void {
@@ -164,19 +195,19 @@ class ListaDeLivros {
     li.appendChild(inputRemover);
     li.appendChild(botaoRemover);
     this.ul.appendChild(li);
-}
+  }
 
 
   private salvarNoLocalStorage(): void {
-      localStorage.setItem('livros', JSON.stringify(this.livros));
+    localStorage.setItem('livros', JSON.stringify(this.livros));
   }
 
   private carregarDoLocalStorage(): void {
-      const livrosGuardados = localStorage.getItem('livros');
-      if (livrosGuardados) {
-          this.livros = JSON.parse(livrosGuardados);
-          this.livros.forEach(livro => this.renderizarLivro(livro));
-      }
+    const livrosGuardados = localStorage.getItem('livros');
+    if (livrosGuardados) {
+      this.livros = JSON.parse(livrosGuardados);
+      this.livros.forEach(livro => this.renderizarLivro(livro));
+    }
   }
 }
 
@@ -194,12 +225,12 @@ formUsuario.addEventListener("submit", (event) => {
   const cep = document.getElementById("cep-usuario") as HTMLInputElement;
 
   const novoUsuario = new Usuario(
-      nome.value,
-      email.value,
-      parseInt(cpf.value),
-      parseInt(telefone.value),
-      endereco.value,
-      parseInt(cep.value),
+    nome.value,
+    email.value,
+    parseInt(cpf.value),
+    parseInt(telefone.value),
+    endereco.value,
+    parseInt(cep.value),
   );
 
   listaUsuarios.adicionarUsuario(novoUsuario);
@@ -226,12 +257,12 @@ form.addEventListener("submit", (event) => {
   const quantidade = document.getElementById("quantidade-livro") as HTMLInputElement;
 
   const novoLivro = new Livro(
-      titulo.value,
-      autor.value,
-      parseInt(ano.value),
-      genero.value,
-      parseInt(isbn.value),
-      parseInt(quantidade.value),
+    titulo.value,
+    autor.value,
+    parseInt(ano.value),
+    genero.value,
+    parseInt(isbn.value),
+    parseInt(quantidade.value),
   );
 
   listaLivros.adicionarLivro(novoLivro);
@@ -242,4 +273,122 @@ form.addEventListener("submit", (event) => {
   genero.value = "";
   isbn.value = "";
   quantidade.value = "";
+});
+
+class Emprestimo {
+  usuario: Usuario;
+  livro: Livro;
+  dataEmprestimo: Date;
+
+  constructor(usuario: Usuario, livro: Livro) {
+    this.usuario = usuario;
+    this.livro = livro;
+    this.dataEmprestimo = new Date();
+  }
+  getDataEmprestimoFormatada(): number {
+    const dt = new Date(this.dataEmprestimo)
+    return dt.getDate();
+  }
+}
+class ListaDeEmprestimos {
+  private emprestimos: Emprestimo[] = [];
+  private ul: HTMLUListElement;
+
+  constructor(ulId: string) {
+    this.ul = document.getElementById(ulId) as HTMLUListElement;
+    this.carregarDoLocalStorage();
+  }
+
+  adicionarEmprestimo(emprestimo: Emprestimo): void {
+    this.emprestimos.push(emprestimo);
+    this.renderizarEmprestimo(emprestimo);
+    this.salvarNoLocalStorage();
+  }
+
+  verificarEmprestimoPorUsuario(cpf: number): number {
+    const arrEmprestimoDoUsuario = this.emprestimos.filter((emprestimo) => emprestimo.usuario.cpf == cpf)
+    return arrEmprestimoDoUsuario.length;
+  }
+
+  limiteDeEmprestimoUsuario(cpf: number): void {
+    const emprestimos = this.verificarEmprestimoPorUsuario(cpf)
+    if (emprestimos > 2) {
+      alert("Limite de empréstimo por usuário atingido")
+      throw new Error("Limite de empréstimo por usuário atingido")
+    }
+  }
+
+  private renderizarEmprestimo(emprestimo: Emprestimo): void {
+    const li = document.createElement("li");
+    const divDetalhes = document.createElement("div");
+    divDetalhes.textContent = `Usuário: ${emprestimo.usuario.nome}, CPF: ${emprestimo.usuario.cpf}, Título: ${emprestimo.livro.titulo}, ISBN: ${emprestimo.livro.isbn}, Data do empréstimo:  `;
+    //refatorar a data de empréstimo
+    const botaoDevolver = document.createElement("button");
+    botaoDevolver.textContent = "Devolução";
+    botaoDevolver.addEventListener("click", () => {
+      this.removerEmprestimo(emprestimo.usuario.cpf);
+      emprestimo.livro.quantidade++
+      listaLivros.atualizarDetalhesLivro(emprestimo.livro)
+    });
+    li.appendChild(divDetalhes);
+    li.appendChild(botaoDevolver);
+    this.ul.appendChild(li);
+  }
+
+  removerEmprestimo(cpf: number): void {
+    const indice = this.emprestimos.findIndex(emprestimo => emprestimo.usuario.cpf === cpf);
+    if (indice !== -1) {
+      this.emprestimos.splice(indice, 1);
+      this.atualizarLista();
+      this.salvarNoLocalStorage();
+    }
+  }
+
+  private atualizarLista(): void {
+    while (this.ul.firstChild) {
+      this.ul.removeChild(this.ul.firstChild);
+    }
+    this.emprestimos.forEach(emprestimo => this.renderizarEmprestimo(emprestimo));
+  }
+
+
+  private salvarNoLocalStorage(): void {
+    localStorage.setItem('emprestimos', JSON.stringify(this.emprestimos));
+  }
+
+  private carregarDoLocalStorage(): void {
+    const emprestimosGuardados = localStorage.getItem('emprestimos');
+    if (emprestimosGuardados) {
+      this.emprestimos = JSON.parse(emprestimosGuardados);
+      this.emprestimos.forEach(emprestimo => this.renderizarEmprestimo(emprestimo));
+    }
+  }
+}
+
+const listaEmprestimos = new ListaDeEmprestimos("lista-emprestimos");
+
+const formEmprestimo = document.getElementById("emprestimo-livro") as HTMLFormElement;
+formEmprestimo.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const usuarioCPF = document.getElementById("usuario-cpf-emprestimo") as HTMLInputElement;
+  const livroISBN = document.getElementById("livro-isbn-emprestimo") as HTMLInputElement;
+
+  const cpf = parseInt(usuarioCPF.value);
+  const isbn = parseInt(livroISBN.value);
+
+  const usuarioEmprestimo = listaUsuarios.verificarUsuarioPorCPF(cpf);
+  const livroEmprestimo = listaLivros.verificarDisponibilidadeLivro(isbn);
+
+  const novoEmprestimo = new Emprestimo(
+    usuarioEmprestimo,
+    livroEmprestimo
+  );
+
+  listaEmprestimos.limiteDeEmprestimoUsuario(cpf);
+
+  listaEmprestimos.adicionarEmprestimo(novoEmprestimo);
+
+  usuarioCPF.value = "";
+  livroISBN.value = "";
 });
