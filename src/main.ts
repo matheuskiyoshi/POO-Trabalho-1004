@@ -312,9 +312,9 @@ class Emprestimo {
     this.livro = livro;
     this.dataEmprestimo = new Date();
   }
-  getDataEmprestimoFormatada(): number {
+  getDataEmprestimoFormatada(): string {
     const dt = new Date(this.dataEmprestimo)
-    return dt.getDate();
+    return dt.toLocaleDateString();
   }
 }
 class ListaDeEmprestimos {
@@ -348,7 +348,7 @@ class ListaDeEmprestimos {
   private renderizarEmprestimo(emprestimo: Emprestimo): void {
     const li = document.createElement("li");
     const divDetalhes = document.createElement("div");
-    divDetalhes.textContent = `Usuário: ${emprestimo.usuario.nome}, CPF: ${emprestimo.usuario.cpf}, Título: ${emprestimo.livro.titulo}, ISBN: ${emprestimo.livro.isbn}, Data do empréstimo:  `;
+    divDetalhes.textContent = `Usuário: ${emprestimo.usuario.nome}, CPF: ${emprestimo.usuario.cpf}, Título: ${emprestimo.livro.titulo}, ISBN: ${emprestimo.livro.isbn}, Data do empréstimo: ${emprestimo.getDataEmprestimoFormatada()} `;
     //refatorar a data de empréstimo
     const botaoDevolver = document.createElement("button");
     botaoDevolver.textContent = "Devolução";
