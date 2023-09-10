@@ -26,8 +26,19 @@ class ListaDeUsuarios {
   }
 
   adicionarUsuario(usuario: Usuario): void {
-    this.usuarios.push(usuario);
+    const usuarioExistente = this.usuarios.find(u => u.cpf === usuario.cpf);
+
+    if (usuarioExistente) {
+      usuarioExistente.nome = usuario.nome;
+      usuarioExistente.email = usuario.email;
+      usuarioExistente.telefone = usuario.telefone;
+      usuarioExistente.endereco = usuario.endereco;
+      usuarioExistente.cep = usuario.cep;
+    } else {
+      this.usuarios.push(usuario);
+    }
     this.renderizarUsuario(usuario);
+    this.atualizarLista();
     this.salvarNoLocalStorage();
   }
 
@@ -118,35 +129,52 @@ class ListaDeLivros {
   }
 
   adicionarLivro(livro: Livro): void {
-    this.livros.push(livro);
-    this.renderizarLivro(livro);
-    this.salvarNoLocalStorage();
+    const livroExistente = this.livros.find(l => l.isbn === livro.isbn);
+
+    if (livroExistente) {
+      if (livro.quantidade > 0) {
+        livroExistente.quantidade += livro.quantidade;
+        this.atualizarDetalhesLivro(livroExistente);
+        this.salvarNoLocalStorage();
+      } else {
+        alert('A quantidade do livro deve ser maior que zero.');
+      }
+    } else {
+      if (livro.quantidade <= 0) {
+        alert('A quantidade do livro deve ser maior que zero.');
+        return;
+      }
+
+      this.livros.push(livro);
+      this.renderizarLivro(livro);
+      this.salvarNoLocalStorage();
+    }
   }
 
   removerLivro(livro: Livro, inputRemover: string): void {
     const quantidadeRemover = parseInt(inputRemover, 10);
-    if (!isNaN(quantidadeRemover)) {
-      if (quantidadeRemover <= livro.quantidade) {
-        livro.quantidade -= quantidadeRemover;
-        this.atualizarDetalhesLivro(livro);
-        if (quantidadeRemover === livro.quantidade || livro.quantidade === 0) {
-          const index = this.livros.findIndex(item => item.isbn === livro.isbn);
-          if (index !== -1) {
-            this.livros.splice(index, 1);
-            const divDetalhes = this.ul.querySelector(`div[data-isbn="${livro.isbn}"]`);
-            if (divDetalhes) {
-              const liToRemove = divDetalhes.parentElement;
-              if (liToRemove) {
-                this.ul.removeChild(liToRemove);
-                this.salvarNoLocalStorage();
-              }
-            }
-          }
-        }
-        this.salvarNoLocalStorage();
-      } else {
+    if (!isNaN(quantidadeRemover) && quantidadeRemover > 0) {
+        if (quantidadeRemover <= livro.quantidade) {
+            livro.quantidade -= quantidadeRemover;
+            this.atualizarDetalhesLivro(livro);
+            if (quantidadeRemover === livro.quantidade || livro.quantidade === 0) {
+                const index = this.livros.findIndex(item => item.isbn === livro.isbn);
+                if (index !== -1) {
+                    this.livros.splice(index, 1);
+                    const divDetalhes = this.ul.querySelector(`div[data-isbn="${livro.isbn}"]`);
+                    if (divDetalhes) {
+                        const liToRemove = divDetalhes.parentElement;
+                        if (liToRemove) {
+                            this.ul.removeChild(liToRemove);
+                            this.salvarNoLocalStorage();
+                        }
+                    }
+                }
+           }
+           this.salvarNoLocalStorage();
+       } else {
         alert("A quantidade a ser removida é maior do que a quantidade atual!");
-      }
+       }
     } else {
       alert("Por favor, insira uma quantidade válida.");
     }
@@ -196,7 +224,6 @@ class ListaDeLivros {
     li.appendChild(botaoRemover);
     this.ul.appendChild(li);
   }
-
 
   private salvarNoLocalStorage(): void {
     localStorage.setItem('livros', JSON.stringify(this.livros));
