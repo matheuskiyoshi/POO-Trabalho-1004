@@ -348,8 +348,7 @@ class ListaDeEmprestimos {
   private renderizarEmprestimo(emprestimo: Emprestimo): void {
     const li = document.createElement("li");
     const divDetalhes = document.createElement("div");
-    divDetalhes.textContent = `Usuário: ${emprestimo.usuario.nome}, CPF: ${emprestimo.usuario.cpf}, Título: ${emprestimo.livro.titulo}, ISBN: ${emprestimo.livro.isbn}, Data do empréstimo: ${emprestimo.getDataEmprestimoFormatada()}  `;
-    //refatorar a data de empréstimo
+    divDetalhes.textContent = `Usuário: ${emprestimo.usuario.nome}, CPF: ${emprestimo.usuario.cpf}, Título: ${emprestimo.livro.titulo}, ISBN: ${emprestimo.livro.isbn}, Data do empréstimo: ${emprestimo.getDataEmprestimoFormatada()}.`;
     const botaoDevolver = document.createElement("button");
     botaoDevolver.textContent = "Devolução";
     botaoDevolver.addEventListener("click", () => {
