@@ -1,12 +1,12 @@
 class Usuario {
   nome: string;
   email: string;
-  cpf: number;
+  cpf: string;
   telefone: number;
   endereco: string;
   cep: number;
 
-  constructor(nome: string, email: string, cpf: number, telefone: number, endereco: string, cep: number) {
+  constructor(nome: string, email: string, cpf: string, telefone: number, endereco: string, cep: number) {
     this.nome = nome;
     this.email = email;
     this.cpf = cpf;
@@ -42,7 +42,7 @@ class ListaDeUsuarios {
     this.salvarNoLocalStorage();
   }
 
-  removerUsuario(cpf: number): void {
+  removerUsuario(cpf: string): void {
     const indice = this.usuarios.findIndex(usuario => usuario.cpf === cpf);
     if (indice !== -1) {
       this.usuarios.splice(indice, 1);
@@ -58,7 +58,7 @@ class ListaDeUsuarios {
     this.usuarios.forEach(usuario => this.renderizarUsuario(usuario));
   }
 
-  verificarUsuarioPorCPF(cpf: number): Usuario {
+  verificarUsuarioPorCPF(cpf: string): Usuario {
     const usuarioEncontrado = this.usuarios.find((usuario) => usuario.cpf === cpf);
 
     if (usuarioEncontrado) {
@@ -103,9 +103,9 @@ class Livro {
   ano: number;
   genero: string;
   quantidade: number;
-  isbn: number;
+  isbn: string;
 
-  constructor(titulo: string, autor: string, ano: number, genero: string, isbn: number, quantidade: number) {
+  constructor(titulo: string, autor: string, ano: number, genero: string, isbn: string, quantidade: number) {
     this.titulo = titulo;
     this.autor = autor;
     this.ano = ano;
@@ -187,7 +187,7 @@ class ListaDeLivros {
     }
   }
 
-  verificarDisponibilidadeLivro(isbn: number): Livro {
+  verificarDisponibilidadeLivro(isbn: string): Livro {
     const livroEncontrado = this.livros.find((livro) => livro.isbn === isbn);
     if (!livroEncontrado) {
       alert("Livro não cadastrado no sistema");
@@ -254,7 +254,7 @@ formUsuario.addEventListener("submit", (event) => {
   const novoUsuario = new Usuario(
     nome.value,
     email.value,
-    parseInt(cpf.value),
+    cpf.value,
     parseInt(telefone.value),
     endereco.value,
     parseInt(cep.value),
@@ -288,7 +288,7 @@ form.addEventListener("submit", (event) => {
     autor.value,
     parseInt(ano.value),
     genero.value,
-    parseInt(isbn.value),
+    isbn.value,
     parseInt(quantidade.value),
   );
 
@@ -332,12 +332,12 @@ class ListaDeEmprestimos {
     this.salvarNoLocalStorage();
   }
 
-  verificarEmprestimoPorUsuario(cpf: number): number {
+  verificarEmprestimoPorUsuario(cpf: string): number {
     const arrEmprestimoDoUsuario = this.emprestimos.filter((emprestimo) => emprestimo.usuario.cpf == cpf)
     return arrEmprestimoDoUsuario.length;
   }
 
-  limiteDeEmprestimoUsuario(cpf: number): void {
+  limiteDeEmprestimoUsuario(cpf: string): void {
     const emprestimos = this.verificarEmprestimoPorUsuario(cpf)
     if (emprestimos > 2) {
       alert("Limite de empréstimo por usuário atingido")
@@ -361,7 +361,7 @@ class ListaDeEmprestimos {
     this.ul.appendChild(li);
   }
 
-  removerEmprestimo(cpf: number): void {
+  removerEmprestimo(cpf: string): void {
     const indice = this.emprestimos.findIndex(emprestimo => emprestimo.usuario.cpf === cpf);
     if (indice !== -1) {
       this.emprestimos.splice(indice, 1);
@@ -400,8 +400,8 @@ formEmprestimo.addEventListener("submit", (event) => {
   const usuarioCPF = document.getElementById("usuario-cpf-emprestimo") as HTMLInputElement;
   const livroISBN = document.getElementById("livro-isbn-emprestimo") as HTMLInputElement;
 
-  const cpf = parseInt(usuarioCPF.value);
-  const isbn = parseInt(livroISBN.value);
+  const cpf = usuarioCPF.value;
+  const isbn = livroISBN.value;
 
   const usuarioEmprestimo = listaUsuarios.verificarUsuarioPorCPF(cpf);
   const livroEmprestimo = listaLivros.verificarDisponibilidadeLivro(isbn);
